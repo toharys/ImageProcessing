@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt  # Optional, for visualization
 from typing import Tuple
 from scipy.io import wavfile
-from scipy.io.wavfile import read as read_wav
 from scipy.signal import iirnotch
+
+path_q1_denoised = r".."  # Optional, for save the denoised signal
+path_q2_denoised = r".."  # Optional, for save the denoised signal
 
 
 def wav_to_arr(file_path) -> Tuple[np.ndarray, int]:
@@ -28,7 +30,7 @@ def generate_spectrogram(audio_array, frame_rate) -> Tuple[np.ndarray, np.ndarra
     return spec_values, freq_bins, time_bins
 
 
-def notch_filter(audio_array, frame_rate, target_frequency, quality_factor, end_time, start_time=0.0) -> np.ndarray:
+def generic_filter(audio_array, frame_rate, target_frequency, quality_factor,start_time, end_time) -> np.ndarray:
 
     # Design notch filter
     nyquist = 0.5 * frame_rate
@@ -57,18 +59,18 @@ def q1(audio_path) -> np.ndarray:
     audio_arr, frame_rate = wav_to_arr(audio_path)
     # frequencies, fft_result = calculate_fourier_transform(audio_arr, frame_rate)
     generate_spectrogram(audio_arr,frame_rate)
-    filtered_audio = notch_filter(audio_arr, frame_rate, 1124, 4, len(audio_arr)/frame_rate)
+    filtered_audio = generic_filter(audio_arr, frame_rate, 1124, 4, 0.0, len(audio_arr) / frame_rate)
     generate_spectrogram(filtered_audio, frame_rate)
-    save_audio_to_wav(filtered_audio, frame_rate, r"C:\Users\tohar\ImageProcessingExs\ex2\Outputs\q1_filtered.wav")
+    save_audio_to_wav(filtered_audio, frame_rate, path_q1_denoised)
     return filtered_audio
 
 
 def q2(audio_path) -> np.ndarray:
     audio_arr, frame_rate = wav_to_arr(audio_path)
     generate_spectrogram(audio_arr, frame_rate)
-    filtered_audio = notch_filter(audio_arr, frame_rate, 595, 2, 4.1, 1.45)
+    filtered_audio = generic_filter(audio_arr, frame_rate, 595, 30, 1.45, 4.1)
     generate_spectrogram(filtered_audio, frame_rate)
-    save_audio_to_wav(filtered_audio, frame_rate, r"C:\Users\tohar\ImageProcessingExs\ex2\Outputs\q2_filtered.wav")
+    save_audio_to_wav(filtered_audio, frame_rate, path_q2_denoised)
     return filtered_audio
 
 
