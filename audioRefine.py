@@ -74,6 +74,3 @@ def q2(audio_path) -> np.ndarray:
     return filtered_audio
 
 
-if __name__ == "__main__":
-    q1(r"C:\Users\tohar\ImageProcessingExs\ex2\Inputs\q1.wav")
-    q2(r"C:\Users\tohar\ImageProcessingExs\ex2\Inputs\q2.wav")
