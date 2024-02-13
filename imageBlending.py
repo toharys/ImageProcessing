@@ -44,8 +44,7 @@ def blend_images_laplacian(image1, image2, mask):
     gaussian_m = generate_gaussian_pyramid(mask,levels)
     for level in range(levels):
         gaussian_m[level] = cv2.resize(mask, (laplacian_a[level].shape[1], laplacian_a[level].shape[0]))
-        #copilot
-        gaussian_m[level] = gaussian_m[level] / 255
+        gaussian_m[level] = gaussian_m[level] / 255 # in order to keep the binary mask vlues 0 and 1 after the expand
         # Expand the dimensions of the mask to match the number of channels in the Laplacian pyramids
         gaussian_m[level] = np.expand_dims(gaussian_m[level], axis=2)
 
@@ -53,8 +52,6 @@ def blend_images_laplacian(image1, image2, mask):
     blended_pyramid = []
     for la, lb, gm in zip(laplacian_a, laplacian_b, gaussian_m[::-1]):
         # Convert the binary mask to an RGB mask
-        # gm = gm.astype(np.float32)
-        # gm_rgb = cv2.cvtColor(gm, cv2.COLOR_GRAY2RGB)
         blended_level = gm * la + (1 - gm) * lb
         blended_pyramid.append(blended_level)
 
