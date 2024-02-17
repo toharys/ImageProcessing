@@ -58,30 +58,28 @@ def blend_images_laplacian(image1, image2, mask):
     # Reconstruct the blended image by summing up the blended Laplacian levels
     return reconstruct_blended_image(blended_pyramid)
 
-
-if __name__ == "__main__":
-    # Check if correct number of command-line arguments is provided
-    if len(sys.argv) != 4:
-        print("Usage: python script.py image1 image2 mask")
-        sys.exit(1)
-
+def load_images():
     # Load the images and the mask
-    image1_path = sys.argv[1]
-    image2_path = sys.argv[2]
-    mask_path = sys.argv[3]
-
+    image1_path =r"chair.jpg"
+    image2_path = r"sky.jpg"
+    mask_path =r"mask.png"
     image1 = cv2.imread(image1_path)
     image2 = cv2.imread(image2_path)
     mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+    # Resize the mask and image2 to match the images if needed
+    height, width = image1.shape[:2]
+    image2 = cv2.resize(image2, (width, height))
+    mask = cv2.resize(mask, (width,height))
+    cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR) / 255.0
+    return image1, image2, mask
 
-    # Resize the mask to match the images if needed
-    mask = cv2.resize(mask, (image1.shape[1], image1.shape[0]))
 
+if __name__ == "__main__":
+    # Load the images
+    image1, image2, mask = load_images()
     # Blend the images using Laplacian and Gaussian pyramids
     result = blend_images_laplacian(image1, image2, mask)
-
     # Display the result
     cv2.imshow("Blended Image", result)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-

@@ -10,7 +10,7 @@ def generate_laplacian_pyramid(image, levels):
         expanded_image = cv2.pyrUp(gaussian_pyramid[i+1], dstsize=(gaussian_pyramid[i].shape[1], gaussian_pyramid[i].shape[0]))
         laplacian = cv2.subtract(gaussian_pyramid[i], expanded_image)
         laplacian_pyramid.append(laplacian)
-    laplacian_pyramid.append(gaussian_pyramid[-1]) # Last level is the same as the smallest image
+    laplacian_pyramid.append(gaussian_pyramid[-1])  # Last level is the same as the smallest image
     return laplacian_pyramid
 
 
@@ -22,54 +22,53 @@ def generate_gaussian_pyramid(image, levels):
     return pyramid
 
 
-# def generate_laplacian_pyramid(image, levels):
-#     pyramid = [image]
-#     for _ in range(levels-1):
-#         image = cv2.pyrDown(image)
-#         expanded_image = cv2.pyrUp(image, dstsize=(pyramid[0].shape[1], pyramid[0].shape[0]))
-#         laplacian = cv2.subtract(image, expanded_image)
-#         pyramid.append(laplacian)
-#     return pyramid
-
-def combine_pyramid_levels(pyramid1, pyramid2):
-    combined_pyramid = []
-    for level1, level2 in zip(pyramid1, pyramid2):
-        combined_level = 0.7 * level1 + 0.3 * level2  # Adjust the weights as needed
-        combined_pyramid.append(combined_level)
-    return combined_pyramid
-
-def reconstruct_image(pyramid):
-    reconstructed_image = pyramid[0]
-    for i in range(1, len(pyramid)):
-        reconstructed_image = cv2.pyrUp(reconstructed_image)
-        # Resize the current level of the Laplacian pyramid to match the dimensions of the reconstructed image
-        pyramid_level_resized = cv2.resize(pyramid[i], (reconstructed_image.shape[1], reconstructed_image.shape[0]))
-        # Add the resized level of the Laplacian pyramid to the reconstructed image
-        reconstructed_image = reconstructed_image.astype(np.float32)
-        reconstructed_image += pyramid_level_resized
-
-    return np.clip(reconstructed_image, 0, 255).astype(np.uint8)
-
-# Load the images
-image1 = cv2.imread(r"C:\Users\tohar\ImageProcessingExs\ex3\sky1.jpg")
-image2 = cv2.imread(r"C:\Users\tohar\ImageProcessingExs\ex3\blackRat.jpg")
-
-# Set the number of pyramid levels
-levels = 5
-
-# Generate Laplacian pyramids for both images
-pyramid1 = generate_laplacian_pyramid(image1, levels)
-pyramid2 = generate_laplacian_pyramid(image2, levels)
-
-# Combine pyramid levels
-combined_pyramid = combine_pyramid_levels(pyramid1, pyramid2)
-
-# Reconstruct the hybrid image
-hybrid_image = reconstruct_image(combined_pyramid)
-
-# Display the hybrid image
-cv2.imshow("Hybrid Image", hybrid_image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+def merge_pyramid(laplacian1, laplacian2, cut_threshold):
+    merged_pyramid = []
+    for i in range(cut_threshold):
+        merged_pyramid.append(laplacian1[i])
+    for i in range(cut_threshold,len(laplacian2)-1):
+        merged_pyramid.append(laplacian2[i])
+    return merged_pyramid
 
 
+def reconstruct_image_from_laplacian(laplacian_pyramid):
+    laplacian_pyramid.reverse()
+    image = laplacian_pyramid[0]
+    for i in range(1, len(laplacian_pyramid)):
+        image = cv2.pyrUp(image, (laplacian_pyramid[i].shape[1], laplacian_pyramid[i].shape[0]))
+        image = cv2.add(image, laplacian_pyramid[i])
+    return image
+
+
+def build_hybrid_image(image1, image2):
+    pyramid_levels = 13
+    laplacian_im1 = generate_laplacian_pyramid(image1, pyramid_levels)
+    laplacian_im2 = generate_laplacian_pyramid(image2, pyramid_levels)
+    cut_threshold = 6
+    laplacian_hybrid = merge_pyramid(laplacian_im1, laplacian_im2, cut_threshold)
+    return reconstruct_image_from_laplacian(laplacian_hybrid)
+
+
+def load_images():
+    # Load the images
+    image1_path =r"C:\Users\tohar\ImageProcessingExs\ex3\kingBB.jpg"
+    image2_path = r"C:\Users\tohar\ImageProcessingExs\ex3\sara.jpg"
+    image1 = cv2.imread(image1_path).astype(np.uint8)
+    image2 = cv2.imread(image2_path).astype(np.uint8)
+    heigth,width = image1.shape[:2]
+    image2 = cv2.resize(image2,(width,heigth))
+    image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2GRAY)
+    image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
+    return image1, image2
+
+
+if __name__ == "__main__":
+    # Load the images
+    image1, image2 = load_images()
+    # Create the hybrid image
+    result = build_hybrid_image(image1, image2)
+    result = cv2.resize(result, (400,600))
+    # Display the hybrid image
+    cv2.imshow("Hybrid Image", result)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
