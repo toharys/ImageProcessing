@@ -51,8 +51,8 @@ def build_hybrid_image(image1, image2):
 
 def load_images():
     # Load the images
-    image1_path =r"C:\Users\tohar\ImageProcessingExs\ex3\kingBB.jpg"
-    image2_path = r"C:\Users\tohar\ImageProcessingExs\ex3\sara.jpg"
+    image1_path =r"image1.jpg"
+    image2_path = r"image2.jpg"
     image1 = cv2.imread(image1_path).astype(np.uint8)
     image2 = cv2.imread(image2_path).astype(np.uint8)
     heigth,width = image1.shape[:2]

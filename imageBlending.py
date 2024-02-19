@@ -50,6 +50,7 @@ def blend_images_laplacian(image1, image2, mask):
 
     # Blend Laplacian levels according to the mask
     blended_pyramid = []
+    i=0
     for la, lb, gm in zip(laplacian_a, laplacian_b, gaussian_m[::-1]):
         # Convert the binary mask to an RGB mask
         blended_level = gm * la + (1 - gm) * lb
@@ -60,8 +61,8 @@ def blend_images_laplacian(image1, image2, mask):
 
 def load_images():
     # Load the images and the mask
-    image1_path =r"chair.jpg"
-    image2_path = r"sky.jpg"
+    image1_path =r"image1.jpg"
+    image2_path = r"image2.jpg"
     mask_path =r"mask.png"
     image1 = cv2.imread(image1_path)
     image2 = cv2.imread(image2_path)
